@@ -1,3 +1,7 @@
+# VSCODE settings + personal notes etc
+.TODO
+.vscode/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
