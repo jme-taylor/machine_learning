@@ -184,3 +184,28 @@ def recall(true, pred):
     recall = tps / (tps + fns)
 
     return recall
+
+
+def f1_score(true, pred):
+    """
+    Computes the f1 score for the classifiers predictions
+
+    Parameters
+    ----------
+    true: list
+        A list of ground truth labels
+
+    pred: list
+        A list of predictions from the classifier
+
+    Returns
+    -------
+    f1_score: float
+        A float of the f1 score
+    """
+    p = precision(true, pred)
+    r = recall(true, pred)
+
+    f1_score = (2 * p * r) / (p + r)
+
+    return f1_score
