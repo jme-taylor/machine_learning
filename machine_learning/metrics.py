@@ -184,3 +184,30 @@ def recall(true, pred):
     recall = tps / (tps + fns)
 
     return recall
+
+
+def f1_score(true, pred):
+    """
+    Function to get the F1 score of a classifier, which is the harmonic mean
+    of the recall and the precision. It can score 0 at worst and 1 at best.
+
+    Parameters
+    ----------
+    true: list
+        The ground truth labels
+
+    pred: list
+        The predicted labels from the classifier
+
+    Returns
+    -------
+    f1_score: float
+        The f1 score, a float between 0 and 1.
+    """
+
+    p = precision(true, pred)
+    r = recall(true, pred)
+
+    f1_score = 2 * p * r / (p + r)
+
+    return f1_score
