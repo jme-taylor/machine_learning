@@ -1,3 +1,6 @@
+import numpy as np
+
+
 def accuracy(true, pred):
     """
     Returns the accuracy of a classification model, as defined as the amount
@@ -211,3 +214,166 @@ def f1_score(true, pred):
     f1_score = 2 * p * r / (p + r)
 
     return f1_score
+
+
+def false_positive_rate(true, pred):
+    """
+    Function to record the false positive rate (FPR) of a classifier.
+
+    Parameters
+    ----------
+    true: list
+        The ground truth labels
+
+    pred: list
+        The predicted labels from the classifier
+
+    Returns
+    -------
+    fpr: float
+        The f1 score, a float between 0 and 1.
+    """
+    fp = false_positive(true, pred)
+    tn = true_negative(true, pred)
+    fpr = fp / (fp + tn)
+
+    return fpr
+
+
+def _fpr_tpr_scores(true, pred_probabilities, thresholds=None):
+    """
+    Function to get a set of true positive rates (TPR) and false positive
+    rates (FPR) given a certain threshold of a classifier.
+
+    Parameters
+    ----------
+    true: list
+        The ground truth labels
+
+    pred_probabilities: list
+        A list of predicitions from the classifier, in float format, as their
+        raw probabilities.
+
+    thresholds: list, optional
+        A list of thresholds that the probability must be higher than to score
+        a 1.
+
+    Returns
+    -------
+    tpr_list: list
+        A list of true positive ratio values
+
+    fpr_list: list
+        A list of false postitive ratio values
+    """
+    # use arbitrary list of thresholds if not given
+    if thresholds is None:
+        thresholds = [
+            0,
+            0.1,
+            0.2,
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7,
+            0.8,
+            0.85,
+            0.9,
+            0.99,
+            1.0,
+        ]
+
+    tpr_list = []
+    fpr_list = []
+
+    for t in thresholds:
+        temp_pred = [1 if x >= t else 0 for x in pred_probabilities]
+        tpr = recall(true, temp_pred)
+        tpr_list.append(tpr)
+        fpr = false_positive_rate(true, temp_pred)
+        fpr_list.append(fpr)
+
+    return tpr_list, fpr_list
+
+
+def area_under_roc_curve(true, pred_probabilities, thresholds=None):
+    """
+    Function to score the area under the receiver operating characteristic
+    (ROC) curve. Scores can range between 0 and 1. 1 is a perfect classifer,
+    0.5 is a purely random classifier, and 0 is very bad.
+
+    Parameters
+    ----------
+    true: list
+        The ground truth labels
+
+    pred_probabilities: list
+        A list of predicitions from the classifier, in float format, as their
+        raw probabilities.
+
+    thresholds: list, optional
+        A list of thresholds that the probability must be higher than to score
+        a 1.
+
+    Returns
+    -------
+    area_under_roc_curve: float
+        A float with the area under the roc curve score
+    """
+    tpr_list, fpr_list = _fpr_tpr_scores(true, pred_probabilities)
+
+    area_under_roc_curve = np.trapz(y=tpr_list, x=fpr_list) * -1
+
+    return area_under_roc_curve
+
+
+def plot_roc_curve(
+    true, pred_probabilities, axes, show_area_score=True, thresholds=None
+):
+    """
+    Function to plot the receiver operating characteristic (ROC) curve. This
+    is the false positive rate (FPR) plotted against the true positive rate
+    (TPR).
+
+    Parameters
+    ---------
+    true: list
+        The ground truth labels
+
+    pred_probabilities: list
+        A list of predicitions from the classifier, in float format, as their
+        raw probabilities.
+
+    axes: matplotlib.Axes
+        A matplotlib subplot to do the plotting upon
+
+    thresholds: list, optional
+        A list of thresholds that the probability must be higher than to score
+        a 1.
+
+    Returns
+    -------
+    axes: matplotlib.Axes
+        An ammended matplotlib subplot containing the plot of the ROC curve
+    """
+
+    fpr_list, tpr_list = _fpr_tpr_scores(true, pred_probabilities, thresholds)
+
+    if show_area_score:
+        aurc = area_under_roc_curve(true, pred_probabilities)
+        title = f"Receiver operating characteristic curve - {aurc:.2f} area under score"  # noqa
+    else:
+        title = "Receiver operating characteristic curve"
+
+    axes.plot(fpr_list, tpr_list)
+    axes.fill_between(fpr_list, tpr_list, alpha=0.2)
+    axes.set(
+        title=title,
+        xlabel="FPR",
+        ylabel="TPR",
+        xlim=(0, 1),
+        ylim=(0, 1),
+    )
+
+    return axes
