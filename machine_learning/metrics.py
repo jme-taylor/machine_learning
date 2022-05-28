@@ -240,7 +240,7 @@ def false_positive_rate(true, pred):
     return fpr
 
 
-def _fpr_tpr_scores(true, pred_probabilities, thresholds=None):
+def _fpr_tpr_scores(true, pred_probabilities, num_thresholds=101):
     """
     Function to get a set of true positive rates (TPR) and false positive
     rates (FPR) given a certain threshold of a classifier.
@@ -254,9 +254,9 @@ def _fpr_tpr_scores(true, pred_probabilities, thresholds=None):
         A list of predicitions from the classifier, in float format, as their
         raw probabilities.
 
-    thresholds: list, optional
-        A list of thresholds that the probability must be higher than to score
-        a 1.
+    num_thresholds: int, optional
+        The number of thresholds, evenly spaced between 1 and 0 that you'd
+        like to use. Defaults at 101.
 
     Returns
     -------
@@ -267,22 +267,8 @@ def _fpr_tpr_scores(true, pred_probabilities, thresholds=None):
         A list of false postitive ratio values
     """
     # use arbitrary list of thresholds if not given
-    if thresholds is None:
-        thresholds = [
-            0,
-            0.1,
-            0.2,
-            0.3,
-            0.4,
-            0.5,
-            0.6,
-            0.7,
-            0.8,
-            0.85,
-            0.9,
-            0.99,
-            1.0,
-        ]
+
+    thresholds = np.linspace(0, 1, num_thresholds)
 
     tpr_list = []
     fpr_list = []
@@ -297,7 +283,7 @@ def _fpr_tpr_scores(true, pred_probabilities, thresholds=None):
     return tpr_list, fpr_list
 
 
-def area_under_roc_curve(true, pred_probabilities, thresholds=None):
+def area_under_roc_curve(true, pred_probabilities, num_thresholds=101):
     """
     Function to score the area under the receiver operating characteristic
     (ROC) curve. Scores can range between 0 and 1. 1 is a perfect classifer,
@@ -312,16 +298,18 @@ def area_under_roc_curve(true, pred_probabilities, thresholds=None):
         A list of predicitions from the classifier, in float format, as their
         raw probabilities.
 
-    thresholds: list, optional
-        A list of thresholds that the probability must be higher than to score
-        a 1.
+    num_thresholds: int, optional
+        The number of thresholds, evenly spaced between 1 and 0 that you'd
+        like to use. Defaults at 101.
 
     Returns
     -------
     area_under_roc_curve: float
         A float with the area under the roc curve score
     """
-    tpr_list, fpr_list = _fpr_tpr_scores(true, pred_probabilities)
+    tpr_list, fpr_list = _fpr_tpr_scores(
+        true, pred_probabilities, num_thresholds
+    )
 
     area_under_roc_curve = np.trapz(y=tpr_list, x=fpr_list) * -1
 
@@ -329,7 +317,7 @@ def area_under_roc_curve(true, pred_probabilities, thresholds=None):
 
 
 def plot_roc_curve(
-    true, pred_probabilities, axes, show_area_score=True, thresholds=None
+    true, pred_probabilities, axes, show_area_score=True, num_thresholds=101
 ):
     """
     Function to plot the receiver operating characteristic (ROC) curve. This
@@ -348,9 +336,9 @@ def plot_roc_curve(
     axes: matplotlib.Axes
         A matplotlib subplot to do the plotting upon
 
-    thresholds: list, optional
-        A list of thresholds that the probability must be higher than to score
-        a 1.
+    num_thresholds: int, optional
+        The number of thresholds, evenly spaced between 1 and 0 that you'd
+        like to use. Defaults at 101.
 
     Returns
     -------
@@ -358,7 +346,9 @@ def plot_roc_curve(
         An ammended matplotlib subplot containing the plot of the ROC curve
     """
 
-    fpr_list, tpr_list = _fpr_tpr_scores(true, pred_probabilities, thresholds)
+    fpr_list, tpr_list = _fpr_tpr_scores(
+        true, pred_probabilities, num_thresholds
+    )
 
     if show_area_score:
         aurc = area_under_roc_curve(true, pred_probabilities)
