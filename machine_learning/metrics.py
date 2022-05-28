@@ -346,9 +346,9 @@ def plot_roc_curve(
         An ammended matplotlib subplot containing the plot of the ROC curve
     """
 
-    fpr_list, tpr_list = _fpr_tpr_scores(
-        true, pred_probabilities, num_thresholds
-    )
+    fprs, tprs = _fpr_tpr_scores(true, pred_probabilities, num_thresholds)
+
+    print(len(fprs))
 
     if show_area_score:
         aurc = area_under_roc_curve(true, pred_probabilities)
@@ -356,8 +356,8 @@ def plot_roc_curve(
     else:
         title = "Receiver operating characteristic curve"
 
-    axes.plot(fpr_list, tpr_list)
-    axes.fill_between(fpr_list, tpr_list, alpha=0.2)
+    axes.plot(fprs, tprs)
+    axes.fill_between(fprs, tprs, alpha=0.2)
     axes.set(
         title=title,
         xlabel="FPR",
