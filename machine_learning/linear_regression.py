@@ -63,31 +63,13 @@ class LinearRegression:
         y_pred = X @ self.W + self.b
         return y_pred
 
-    def get_residuals(self, y_pred):
-        """Method to get the residuals of the predictions against true values.
+    def get_cost_function(self, y_pred):
+        """Method to get the mean squared error of a prediction from predictions.
 
-        A residual is defined as y_true - y_pred. This is calculated across
-        all values in the predictions.
-
-        Parameters
-        ----------
-        y_pred : np.array
-            An array of predicted values.
-
-        Returns
-        -------
-        residuals: np.array
-            A numpy array of the residuals of the predictions.
-        """
-        residuals = self.y - y_pred
-        return residuals
-
-    def get_cost_function(self, residuals):
-        """Method to get the mean squared error of a prediction from residuals.
-
-        This method uses the residuals, then squares them to get the sum of
-        the squared residuals. This is then averaged by diving by the number
-        of instances to get the mean squared error.
+        This method uses the difference between the true values and the
+        predcitions to get residuals. then squares them to get the sum of the
+        squared residuals. This is then averaged by diving by the number of
+        instances to get the mean squared error.
 
         Parameters
         ----------
@@ -99,10 +81,10 @@ class LinearRegression:
         cost: float
             A float of the MSE of the predictions.
         """
-        cost = np.sum(np.square(residuals)) / self.n
+        cost = np.sum(np.square(self.y - y_pred)) / self.n
         return cost
 
-    def update_weights(self, residuals):
+    def update_weights(self, y_pred):
         """Method to update the weights of the model parameters.
 
         This is done using gradient descent. For both the weights and bias
@@ -116,8 +98,8 @@ class LinearRegression:
         residuals : np.array
             A numpy array of the residuals of the predictions.
         """
-        db = -2 * (np.mean(residuals))
-        dW = -2 * (self.X.T @ residuals / self.n)
+        db = -2 * (np.mean(self.y - y_pred))
+        dW = -2 * (self.X.T @ (self.y - y_pred) / self.n)
 
         self.b = self.b - (self.learning_rate * db)
         self.W = self.W - (self.learning_rate * dW)
@@ -154,7 +136,6 @@ class LinearRegression:
 
         for i in range(self.num_iterations):
             predictions = self.predict(X)
-            residuals = self.get_residuals(predictions)
-            cost = self.get_cost_function(residuals)
+            cost = self.get_cost_function(predictions)
             self.costs.append(cost)
-            self.update_weights(residuals)
+            self.update_weights(predictions)
