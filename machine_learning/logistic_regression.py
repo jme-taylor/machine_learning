@@ -43,11 +43,11 @@ class LogisticRegression:
         gradient descent as it optimizes.
     """
 
-    def __init__(self, learning_rate, num_iterations):
+    def __init__(self, learning_rate: float, num_iterations: int) -> None:
         self.learning_rate = learning_rate
         self.num_iterations = num_iterations
 
-    def _sigmoid_function(self, z):
+    def _sigmoid_function(self, z: float) -> float:
         """Sigmoid function
 
         Used in Logistic Regression to correct the log odds values to a
@@ -68,7 +68,7 @@ class LogisticRegression:
         sigmoid = 1.0 / (1.0 + np.exp(-(np.clip(z, -250, 250))))
         return sigmoid
 
-    def predict_probabilities(self, X):
+    def predict_probabilities(self, X: np.array) -> None:
         """Function to predict the probability of an instance's class.
 
         Wraps the sigmoid function previously defined around the linear
@@ -90,12 +90,29 @@ class LogisticRegression:
         y_pred = self._sigmoid_function((X @ self.W_) + self.b_)
         return y_pred
 
-    def predict(self, X, threshold=0.5):
+    def predict(self, X: np.array, threshold: float = 0.5) -> np.array:
+        """Method to get a set of predictions from the model, allows you to
+        specify the threshold at which the model will predict a positive class,
+        by default this is set to 0.5.
+
+        Parameters
+        ----------
+        X : np.array
+            A numpy array of the feature set.
+        threshold : float, optional
+            The threshold at which the model should make a positive prediction,
+            by default 0.5
+
+        Returns
+        -------
+        y_pred : np.array
+            A numpy array of the predicted classes
+        """
         y_pred_probability = self.predict_probabilities(X)
         y_pred = np.where(y_pred_probability > 0.5, 1, 0)
         return y_pred
 
-    def _cost_function(self, y_pred):
+    def _cost_function(self, y_pred: np.array) -> float:
         """Calculates the cost function - binary cross entropy
 
         Parameters
@@ -114,7 +131,7 @@ class LogisticRegression:
         )
         return cost
 
-    def _update_weights(self, y_pred):
+    def _update_weights(self, y_pred: np.array) -> None:
         """Function to update the weights for the prediction function.
 
         Parameters
@@ -128,7 +145,7 @@ class LogisticRegression:
         self.b_ = self.b_ - (self.learning_rate * db)
         self.W_ = self.W_ - (self.learning_rate * dW)
 
-    def fit(self, X, y):
+    def fit(self, X: np.array, y: np.array) -> None:
         """Method to fit the model using feature and targets set
 
         Parameters
