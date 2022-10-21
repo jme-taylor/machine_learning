@@ -38,13 +38,13 @@ class LinearRegression:
 
     def __init__(
         self,
-        learning_rate,
-        num_iterations,
-    ):
+        learning_rate: float,
+        num_iterations: int,
+    ) -> None:
         self.learning_rate = learning_rate
         self.num_iterations = num_iterations
 
-    def predict(self, X):
+    def predict(self, X: np.array) -> np.array:
         """Method that predicts a target value for a given set of features.
 
         This is done by multiplying the feature set by the weights of the
@@ -63,7 +63,7 @@ class LinearRegression:
         y_pred = X @ self.W + self.b
         return y_pred
 
-    def get_cost_function(self, y_pred):
+    def get_cost_function(self, y_pred: np.array) -> float:
         """Method to get the mean squared error of a prediction from predictions.
 
         This method uses the difference between the true values and the
@@ -84,7 +84,7 @@ class LinearRegression:
         cost = np.sum(np.square(self.y - y_pred)) / self.n
         return cost
 
-    def update_weights(self, y_pred):
+    def update_weights(self, y_pred: np.array) -> None:
         """Method to update the weights of the model parameters.
 
         This is done using gradient descent. For both the weights and bias
@@ -104,7 +104,7 @@ class LinearRegression:
         self.b = self.b - (self.learning_rate * db)
         self.W = self.W - (self.learning_rate * dW)
 
-    def fit(self, X, y):
+    def fit(self, X: np.array, y: np.array) -> None:
         """Method to fit a linear regression model to features and targets.
 
         The weights and biases of the model are initialised as zeros. For each
